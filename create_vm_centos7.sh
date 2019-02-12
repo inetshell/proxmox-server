@@ -1,24 +1,56 @@
 #!/usr/bin/env bash
-# https://pve.proxmox.com/pve-docs/qm.1.html
+# For mode information, go to https://pve.proxmox.com/pve-docs/qm.1.html
 
-# download centos images
-cd /var/lib/vz/template/qemu/
+# VM settings
+VMID="9000"
+VMNAME="centos7-template"
+VMMEMORY="1024"
+DISKSIZE="32G"
+OSTYPE="l26"
+
+echo "=== checking if VM ${VMID} exists ==="
+qm status ${VMID} > /dev/null 2>&1
+RETURN=$?
+if [[ ${RETURN} -eq 0 ]]; then
+  echo "The VM ${VMID} already exists, please remove it before continue"
+  exit 1
+fi
+
+echo "=== creating temp directory ==="
+WORKDIR=$(mktemp -d)
+
+echo "=== downloading centos iso ==="
+cd ${WORKDIR}
 wget https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.raw.tar.gz
 tar xvzf CentOS-7-x86_64-GenericCloud.raw.tar.gz
 
-# create a new VM
-qm create 9000 --memory 1024 --net0 virtio,bridge=vmbr0
+echo "=== creating VM ==="
+qm create ${VMID} --memory ${VMMEMORY} --ostype ${OSTYPE} --name "${VMNAME}"
+qm set ${VMID} --scsihw virtio-scsi-pci --virtio0 local-lvm:vm-${VMID}-disk-0
+qm set ${VMID} --bootdisk virtio0
+qm set ${VMID} --agent=1
 
-# import the downloaded disk to local-lvm storage
-qm importdisk 9000 CentOS-7-x86_64-GenericCloud.raw local-lvm
+echo "--- importing disk ---"
+qm importdisk ${VMID} CentOS-7-x86_64-GenericCloud-*.raw local-lvm
+qm resize ${VMID} virtio0 $DISKSIZE
 
-# finally attach the new disk to the VM as scsi drive
-qm set 9000 --scsihw virtio-scsi-pci --scsi0 local-lvm:vm-9000-disk-1
+echo "--- adding network interfaces ---"
+qm set ${VMID} --net0 virtio,bridge=vmbr0
 
-# Add cloudinit drive
-qm set 9000 --ide2 local-lvm:cloudinit
+echo "--- attaching cloudinit drive ---"
+qm set ${VMID} --ide2 local-lvm:cloudinit
 
-curl -O https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.raw.tar.gz
+echo "--- converting into template ---"
+qm set ${VMID} --template=1
 
-qm create 900 --net0 virtio,bridge=vmbr0 --name vm600 --serial0 socket \
-  --bootdisk scsi0 --scsihw virtio-scsi-pci --ostype l26
+echo "---removing temp files ---"
+if [[ ! -z ${WORKDIR} ]]; then
+  cd /tmp
+  rm -rf ${WORKDIR}
+fi
+
+echo "=== show VM config ==="
+qm config ${VMID}
+
+echo " === DONE ==="
+exit 0
