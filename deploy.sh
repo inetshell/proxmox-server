@@ -33,12 +33,12 @@ chown -R root:root ./go
 mv go /usr/local
 rm -f go1.10.2.linux-amd64.tar.gz
 
-cat <<EOF >> ~/.profile
+cat <<EOF > /etc/profile.d/golang.sh
 export PATH=\$PATH:/usr/local/go/bin:~/go/bin
 EOF
 
 # Load profile to enable GOLANG
-source .profile
+source /etc/profile.d/golang.sh
 
 # Install terraform
 curl -O https://releases.hashicorp.com/terraform/0.11.11/terraform_0.11.11_linux_amd64.zip
