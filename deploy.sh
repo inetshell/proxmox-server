@@ -26,6 +26,20 @@ apt-get dist-upgrade -y
 # Install required packages
 apt-get install -y screen git curl unzip vim
 
+# Install and configure fail2ban
+apt-get install -y fail2ban
+
+cat <<EOF > /etc/fail2ban/jail.local
+[DEFAULT]
+bantime = 3600
+banaction = iptables-multiport
+[sshd]
+enabled = true
+EOF
+
+systemctl enable fail2ban
+systemctl start fail2ban
+
 # Install GOLANG
 curl -O https://dl.google.com/go/go1.10.2.linux-amd64.tar.gz
 tar xvzf go1.10.2.linux-amd64.tar.gz
