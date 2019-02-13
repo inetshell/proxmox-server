@@ -56,12 +56,12 @@ source /etc/profile.d/golang.sh
 
 # Install terraform
 curl -O https://releases.hashicorp.com/terraform/0.11.11/terraform_0.11.11_linux_amd64.zip
-unzip terraform_0.11.11_linux_amd64.zip
+unzip -o terraform_0.11.11_linux_amd64.zip
 mv terraform /usr/local/bin/
 rm -f terraform_0.11.11_linux_amd64.zip
 mkdir -p ~/.terraform.d/plugins/
-cp ~/go/bin/terraform-provider-proxmox ~/.terraform.d/plugins/
-cp ~/go/bin/terraform-provisioner-proxmox ~/.terraform.d/plugins/
+cp -f ~/go/bin/terraform-provider-proxmox ~/.terraform.d/plugins/
+cp -f ~/go/bin/terraform-provisioner-proxmox ~/.terraform.d/plugins/
 terraform version
 
 # Install proxmox / terraform dependencies
