@@ -5,7 +5,7 @@
 VMID="9000"
 VMNAME="centos7-template"
 VMMEMORY="1024"
-DISKSIZE="32G"
+DISKSIZE="8G"
 OSTYPE="l26"
 
 echo "=== checking if VM ${VMID} exists ==="
