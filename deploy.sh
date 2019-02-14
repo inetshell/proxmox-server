@@ -59,9 +59,6 @@ curl -O https://releases.hashicorp.com/terraform/0.11.11/terraform_0.11.11_linux
 unzip -o terraform_0.11.11_linux_amd64.zip
 mv terraform /usr/local/bin/
 rm -f terraform_0.11.11_linux_amd64.zip
-mkdir -p ~/.terraform.d/plugins/
-cp -f ~/go/bin/terraform-provider-proxmox ~/.terraform.d/plugins/
-cp -f ~/go/bin/terraform-provisioner-proxmox ~/.terraform.d/plugins/
 terraform version
 
 # Install proxmox / terraform dependencies
@@ -71,4 +68,6 @@ go get github.com/Telmate/terraform-provider-proxmox/cmd/terraform-provisioner-p
 go install github.com/Telmate/terraform-provider-proxmox/cmd/terraform-provisioner-proxmox
 go get github.com/Telmate/proxmox-api-go
 go install github.com/Telmate/proxmox-api-go
-
+mkdir -p ~/.terraform.d/plugins/
+cp -f ~/go/bin/terraform-provider-proxmox ~/.terraform.d/plugins/
+cp -f ~/go/bin/terraform-provisioner-proxmox ~/.terraform.d/plugins/
